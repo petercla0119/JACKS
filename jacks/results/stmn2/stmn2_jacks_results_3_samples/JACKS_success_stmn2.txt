@@ -1,0 +1,11 @@
+(base) Claire@MacBook-Pro-2 jacks % python run_JACKS.py stmn2_jacks_data/stmn_counts_sep_CONTROL.txt stmn2_jacks_data/stmn_repmap_CONTROL.txt stmn2_jacks_data/stmn_sgrnamapping_CONTROL.txt --outprefix=results/stmn2_jacks_results/stmn_2_jacks_results --rep_hdr=Replicate --sample_hdr=Sample --ctrl_sample_hdr=Control --sgrna_hdr=sgRNA --gene_hdr=Gene --ctrl_genes=stmn2_jacks_data/stmn_non-targeting_NEGv1_CONTROL.txt
+[2024-07-18 18:55:25,817] jacks: INFO     Loading sample specification
+[2024-07-18 18:55:25,817] jacks: INFO     Loading gene mappings
+[2024-07-18 18:55:25,844] jacks: INFO     Read 1 recognised control genes from stmn2_jacks_data/stmn_non-targeting_NEGv1_CONTROL.txt
+[2024-07-18 18:55:25,844] jacks: INFO     Loading data and pre-processing
+[2024-07-18 18:55:26,611] jacks: INFO     Applying median normalisation
+[2024-07-18 18:55:26,896] jacks: INFO     Collating 3 samples
+[2024-07-18 18:55:27,102] jacks: INFO     Running JACKS inference
+[2024-07-18 18:55:39,673] jacks: INFO     Running JACKS inference on 2000 pseudogenes
+[2024-07-18 18:55:41,008] jacks: INFO     Writing JACKS results
+[2024-07-18 18:55:41,201] jacks: INFO     Computing P-values for negative selection
