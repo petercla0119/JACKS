@@ -1,0 +1,7 @@
+Replicate	Sample	Control
+s1_l1_rep1	S1_CTRL	S1_CTRL
+s2_l2_rep2	S2_CTRL	S2_CTRL
+s3_l3_rep3	S3_CTRL	S3_CTRL
+s1_h1_rep1	S1_CTRL	S1_CTRL
+s2_h2_rep2	S2_CTRL	S2_CTRL
+s3_h3_rep3	S3_CTRL	S3_CTRL
