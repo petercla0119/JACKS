@@ -35,13 +35,13 @@ def inferJACKS(gene_index, testdata, ctrldata, fixed_x=None, n_iter=50, apply_w_
 @return x1 dot x2, where the summands that are NaN are ignored """ 
 def nandot(x1, x2):
     if len(x1.shape) == 1 and len(x2.shape) == 2:
-        x1T = SP.tile(x1, [x2.shape[1],1]).transpose()
-        return SP.nansum(SP.multiply(x1T,x2), axis=0)
+        x1T = np.tile(x1, [x2.shape[1],1]).transpose()
+        return np.nansum(np.multiply(x1T,x2), axis=0)
     elif len(x2.shape) == 1 and len(x1.shape) == 2:
-        x2T = SP.tile(x2, [x1.shape[0],1])
-        return SP.nansum(SP.multiply(x1,x2T), axis=1)
+        x2T = np.tile(x2, [x1.shape[0],1])
+        return np.nansum(np.multiply(x1,x2T), axis=1)
     elif len(x1.shape) == 1 and len(x2.shape) == 1:
-        return SP.nansum(SP.multiply(x1,x2))      
+        return np.nansum(np.multiply(x1,x2))      
     return None
  
     
@@ -55,24 +55,24 @@ def nandot(x1, x2):
 def inferJACKSGene(data, data_err, ctrl, ctrl_err, n_iter, tol=0.1, mu0_x=1, var0_x=1.0, mu0_w=0.0, var0_w=1e4, tau_prior_strength=0.5, fixed_x=None, apply_w_hp = False):
 
     #Adjust estimated variances if needed
-    data_err[SP.isnan(data_err)] = 2.0 # very uncertain if a single replicate
+    data_err[np.isnan(data_err)] = 2.0 # very uncertain if a single replicate
 
     #The control can be specified once for each sample, or common across all cell lines
     if ctrl.shape != data.shape: 
         #If only 1 control replicate, use mean variance from data across cell lines for that guide 
-        ctrl_err[SP.isnan(ctrl_err)] = SP.nanmean(data_err, axis=1).reshape(SP.isnan(ctrl_err).shape)[SP.isnan(ctrl_err)]
+        ctrl_err[np.isnan(ctrl_err)] = np.nanmean(data_err, axis=1).reshape(np.isnan(ctrl_err).shape)[np.isnan(ctrl_err)]
         y = (data.T - ctrl).T
         tau_pr_den = tau_prior_strength*1.0*((data_err**2).T + ctrl_err**2 + 1e-2).T
     else:
         #If only 1 control replicate, use data variances for ctrls as well
-        ctrl_err[SP.isnan(ctrl_err)] = data_err[SP.isnan(ctrl_err)]
+        ctrl_err[np.isnan(ctrl_err)] = data_err[np.isnan(ctrl_err)]
         y = data - ctrl
         tau_pr_den = tau_prior_strength*1.0*(data_err**2 + ctrl_err**2 + 1e-2)
 
     #Run the inference
     G,L = y.shape
     if fixed_x is None:
-        x1 = mu0_x*SP.ones(G)
+        x1 = mu0_x*np.ones(G)
         x2 = x1**2
     else:
         x1 = fixed_x['X1']
@@ -84,8 +84,8 @@ def inferJACKSGene(data, data_err, ctrl, ctrl_err, n_iter, tol=0.1, mu0_x=1, var
    
     w2 = w1**2
     bound = lowerBound(x1,x2,w1,w2,y,tau)
-    LOG.debug("Initially, mean absolute error=%.3f"%(SP.nanmean(abs(y)).mean()))
-    LOG.debug("After init, mean absolute error=%.3f, <x>=%.1f <w>=%.1f lower bound=%.1f"%(SP.nanmean(abs(y.T-SP.outer(w1,x1))).mean(), x1.mean(), w1.mean(), bound))
+    LOG.debug("Initially, mean absolute error=%.3f"%(np.nanmean(abs(y)).mean()))
+    LOG.debug("After init, mean absolute error=%.3f, <x>=%.1f <w>=%.1f lower bound=%.1f"%(np.nanmean(abs(y.T-np.outer(w1,x1))).mean(), x1.mean(), w1.mean(), bound))
     for i in range(n_iter):
         last_bound = bound
         if fixed_x is None: x1,x2 = updateX(w1,w2,tau,y,mu0_x,var0_x)
@@ -93,7 +93,7 @@ def inferJACKSGene(data, data_err, ctrl, ctrl_err, n_iter, tol=0.1, mu0_x=1, var
         w1,w2 = updateW(x1,x2,tau,y,mu0_w,var0_w)
         tau = updateTau(x1, x2, w1, w2, y, tau_prior_strength, tau_pr_den)
         bound = lowerBound(x1,x2,w1,w2,y,tau)
-        LOG.debug("Iter %d/%d. lb: %.1f err: %.3f x:%.2f+-%.2f w:%.2f+-%.2f xw:%.2f"%(i+1, n_iter, bound, SP.nanmean(abs(y.T-SP.outer(w1,x1))).mean(), x1.mean(), SP.median((x2-x1**2)**0.5), w1.mean(), SP.median((w2-w1**2)**0.5), x1.mean()*w1.mean()))
+        LOG.debug("Iter %d/%d. lb: %.1f err: %.3f x:%.2f+-%.2f w:%.2f+-%.2f xw:%.2f"%(i+1, n_iter, bound, np.nanmean(abs(y.T-np.outer(w1,x1))).mean(), x1.mean(), np.median((x2-x1**2)**0.5), w1.mean(), np.median((w2-w1**2)**0.5), x1.mean()*w1.mean()))
         if abs(last_bound - bound) < tol:
             break
     return y, tau, x1, x2, w1, w2
@@ -106,23 +106,23 @@ def updateX(w1, w2, tau, y, mu0_x, var0_x):
     wadj = 0.5/len(x1)
     #Normalize by the median-emphasized mean of x
     x1m = x1.mean() + 2*wadj*np.nanmedian(x1) - wadj*x1.max() - wadj*x1.min()      
-    LOG.debug("After X update, <x>=%.1f, mean absolute error=%.3f"%(x1.mean(), SP.nanmean(abs(y.T-SP.outer(w1,x1))).mean()))
+    LOG.debug("After X update, <x>=%.1f, mean absolute error=%.3f"%(x1.mean(), np.nanmean(abs(y.T-np.outer(w1,x1))).mean()))
     return x1/x1m, x2/x1m/x1m
 
 def updateW(x1, x2, tau, y, mu0_ws, var0_w):
     w1 = (mu0_ws/var0_w + nandot(x1,(y.T).T*tau))/(nandot(x2,tau)+1.0/var0_w)
     w2 = w1**2 + 1.0/(nandot(x2,tau)+1.0/var0_w)
-    LOG.debug("After W update, <w>=%.1f, mean absolute error=%.3f"%(w1.mean(), SP.nanmean(abs(y.T-SP.outer(w1,x1))).mean()))
+    LOG.debug("After W update, <w>=%.1f, mean absolute error=%.3f"%(w1.mean(), np.nanmean(abs(y.T-np.outer(w1,x1))).mean()))
     return w1, w2
 
 def updateTau(x1, x2, w1, w2, y, tau_prior_strength, tau_pr_den):
-    b_star = y**2 - 2*y*(SP.outer(x1,w1)) +SP.outer(x2,w2) 
+    b_star = y**2 - 2*y*(np.outer(x1,w1)) +np.outer(x2,w2) 
     tau = (tau_prior_strength + 0.5)/(tau_pr_den + 0.5*b_star)   
     return tau
 
 def lowerBound(x1,x2,w1,w2,y,tau):
-    xw = SP.outer(x1,w1)
-    return SP.nansum(tau*(y**2 + SP.outer(x2,w2) -2*xw*y))
+    xw = np.outer(x1,w1)
+    return np.nansum(tau*(y**2 + np.outer(x2,w2) -2*xw*y))
     
     
     
