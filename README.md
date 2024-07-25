@@ -9,6 +9,8 @@ The JACKS python package (please see jacks/README.txt for usage instructions)
 
 Scripts and README files with location of results and data for the JACKS 2018 paper.
 
+Data and Results files can be found at: https://figshare.com/articles/Results/6002438
+
 ## reference_grna_efficacies:
 
 Trained values for JACKS's gRNA efficacies for the Avana, GeCKOv2, Yusa 1.0, TKOv1 and Whiteahead
